@@ -1,0 +1,23 @@
+[
+  {"origin": "DEL", "destination": "BOM", "description": "Delhi - Mumbai Trunk Corridor"},
+  {"origin": "DEL", "destination": "BLR", "description": "Delhi - Bengaluru Tech Corridor"},
+  {"origin": "DEL", "destination": "CCU", "description": "Delhi - Kolkata Eastern Trunk"},
+  {"origin": "DEL", "destination": "HYD", "description": "Delhi - Hyderabad Central Corridor"},
+  {"origin": "DEL", "destination": "AMD", "description": "Delhi - Ahmedabad Western Express"},
+  {"origin": "DEL", "destination": "MAA", "description": "Delhi - Chennai Southern Trunk"},
+  {"origin": "DEL", "destination": "GAU", "description": "Delhi - Guwahati North-East Gateway"},
+  {"origin": "BOM", "destination": "BLR", "description": "Mumbai - Bengaluru Heavy Transit"},
+  {"origin": "BOM", "destination": "MAA", "description": "Mumbai - Chennai Coastal Corridor"},
+  {"origin": "BOM", "destination": "HYD", "description": "Mumbai - Hyderabad Deccan Trunk"},
+  {"origin": "BOM", "destination": "AMD", "description": "Mumbai - Ahmedabad Western Route"},
+  {"origin": "BOM", "destination": "GOI", "description": "Mumbai - Goa Coastal Shuttle"},
+  {"origin": "BOM", "destination": "COK", "description": "Mumbai - Kochi South-West Route"},
+  {"origin": "BLR", "destination": "MAA", "description": "Bengaluru - Chennai Southern Express"},
+  {"origin": "BLR", "destination": "HYD", "description": "Bengaluru - Hyderabad IT Corridor"},
+  {"origin": "BLR", "destination": "COK", "description": "Bengaluru - Kochi Southern Link"},
+  {"origin": "BLR", "destination": "GOI", "description": "Bengaluru - Goa Gateway Route"},
+  {"origin": "HYD", "destination": "MAA", "description": "Hyderabad - Chennai Regional Connector"},
+  {"origin": "HYD", "destination": "CCU", "description": "Hyderabad - Kolkata East-Central Corridor"},
+  {"origin": "MAA", "destination": "COK", "description": "Chennai - Kochi Peninsula Route"},
+  {"origin": "CCU", "destination": "GAU", "description": "Kolkata - Guwahati North-East Connector"}
+]

@@ -1,0 +1,92 @@
+[
+  {
+    "code": "DEL",
+    "name": "Indira Gandhi International Airport",
+    "city": "New Delhi",
+    "state": "Delhi",
+    "lat": 28.5562,
+    "lon": 77.1000,
+    "category": "National Mega Hub"
+  },
+  {
+    "code": "BOM",
+    "name": "Chhatrapati Shivaji Maharaj International Airport",
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "lat": 19.0896,
+    "lon": 72.8656,
+    "category": "National Mega Hub"
+  },
+  {
+    "code": "BLR",
+    "name": "Kempegowda International Airport",
+    "city": "Bengaluru",
+    "state": "Karnataka",
+    "lat": 13.1986,
+    "lon": 77.7066,
+    "category": "Primary Metro Hub"
+  },
+  {
+    "code": "HYD",
+    "name": "Rajiv Gandhi International Airport",
+    "city": "Hyderabad",
+    "state": "Telangana",
+    "lat": 17.2403,
+    "lon": 78.4294,
+    "category": "Primary Metro Hub"
+  },
+  {
+    "code": "MAA",
+    "name": "Chennai International Airport",
+    "city": "Chennai",
+    "state": "Tamil Nadu",
+    "lat": 12.9941,
+    "lon": 80.1709,
+    "category": "Primary Metro Hub"
+  },
+  {
+    "code": "CCU",
+    "name": "Netaji Subhash Chandra Bose International Airport",
+    "city": "Kolkata",
+    "state": "West Bengal",
+    "lat": 22.6547,
+    "lon": 88.4467,
+    "category": "Regional Hub (East)"
+  },
+  {
+    "code": "AMD",
+    "name": "Sardar Vallabhbhai Patel International Airport",
+    "city": "Ahmedabad",
+    "state": "Gujarat",
+    "lat": 23.0772,
+    "lon": 72.6347,
+    "category": "Regional Hub (West)"
+  },
+  {
+    "code": "COK",
+    "name": "Cochin International Airport",
+    "city": "Kochi",
+    "state": "Kerala",
+    "lat": 10.1518,
+    "lon": 76.3930,
+    "category": "Regional Gateway (South)"
+  },
+  {
+    "code": "GOI",
+    "name": "Dabolim / Manohar International Airport",
+    "city": "Goa",
+    "state": "Goa",
+    "lat": 15.3808,
+    "lon": 73.8314,
+    "category": "Tourist Gateway (West)"
+  },
+  {
+    "code": "GAU",
+    "name": "Lokpriya Gopinath Bordoloi International Airport",
+    "city": "Guwahati",
+    "state": "Assam",
+    "lat": 26.1061,
+    "lon": 91.5859,
+    "category": "Regional Gateway (North-East)"
+  }
+]

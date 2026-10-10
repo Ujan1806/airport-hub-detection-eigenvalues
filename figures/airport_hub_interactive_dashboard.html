@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Airport Hub Detection — Linear Algebra Mini-Project</title>
+    <style>
+        :root {
+            --primary: #1E40AF;
+            --primary-dark: #1E3A8A;
+            --accent: #DC2626;
+            --bg: #0F172A;
+            --card-bg: #FFFFFF;
+            --text-dark: #0F172A;
+            --text-muted: #64748B;
+            --border: #E2E8F0;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        body { background-color: #F1F5F9; color: var(--text-dark); line-height: 1.5; padding: 24px; }
+        .header {
+            background: linear-gradient(135deg, #1E3A8A 0%, #3B82F6 100%);
+            color: white; padding: 32px; border-radius: 16px; margin-bottom: 24px;
+            box-shadow: 0 10px 25px -5px rgba(30, 58, 138, 0.25);
+        }
+        .header h1 { font-size: 28px; font-weight: 800; margin-bottom: 8px; }
+        .header p { font-size: 15px; opacity: 0.9; max-width: 900px; }
+        
+        .metrics-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px; margin-bottom: 24px;
+        }
+        .metric-card {
+            background: var(--card-bg); padding: 20px; border-radius: 12px;
+            border: 1px solid var(--border); box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+        }
+        .metric-title { font-size: 13px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; }
+        .metric-value { font-size: 26px; font-weight: 800; color: var(--primary); }
+        .metric-sub { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+
+        .card {
+            background: var(--card-bg); border-radius: 14px; padding: 24px;
+            margin-bottom: 24px; border: 1px solid var(--border);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+        }
+        .card-title { font-size: 18px; font-weight: 700; margin-bottom: 16px; color: #1E293B; }
+
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        @media (max-width: 992px) { .two-col { grid-template-columns: 1fr; } }
+
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        th, td { padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border); }
+        th { background: #F8FAFC; color: #475569; font-weight: 700; text-transform: uppercase; font-size: 11px; }
+        tr:hover { background-color: #F8FAFC; }
+
+        .iata-code { background: #EFF6FF; color: #1D4ED8; padding: 3px 8px; border-radius: 6px; font-weight: 800; font-size: 12px; }
+        .category-tag { background: #F1F5F9; color: #475569; padding: 3px 8px; border-radius: 12px; font-size: 11px; }
+        .badge { padding: 3px 8px; border-radius: 10px; font-size: 11px; font-weight: 700; display: inline-block; }
+        .badge-up { background: #DCFCE7; color: #15803D; }
+        .badge-down { background: #FEE2E2; color: #B91C1C; }
+        .badge-same { background: #F1F5F9; color: #64748B; }
+
+        .progress-bar { background: #E2E8F0; border-radius: 4px; height: 8px; width: 80px; overflow: hidden; }
+        .progress-fill { background: linear-gradient(90deg, #3B82F6, #DC2626); height: 100%; border-radius: 4px; }
+
+        .matrix-table th, .matrix-table td { text-align: center; padding: 8px; font-weight: bold; font-size: 12px; }
+        .cell-one { background: #1E40AF; color: white; }
+        .cell-zero { background: #F8FAFC; color: #94A3B8; }
+
+        .math-box {
+            background: #F8FAFC; border-left: 4px solid var(--primary);
+            padding: 16px; border-radius: 0 8px 8px 0; font-size: 14px; margin-bottom: 16px;
+        }
+        .formula { font-family: "Courier New", monospace; font-size: 15px; font-weight: 700; color: #1E3A8A; }
+
+        .comparison-table { margin-top: 16px; }
+        .node-group { cursor: pointer; transition: transform 0.2s; }
+        .node-group:hover circle { stroke: #F59E0B; stroke-width: 4; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Airport Hub Detection using Eigenvalues & Eigenvectors</h1>
+        <p>A Linear Algebra mathematical network model identifying the most strategically critical airport hubs in India via Spectral Decomposition & Perron-Frobenius Eigenvector Centrality.</p>
+    </div>
+
+    <div class="metrics-grid">
+        <div class="metric-card">
+            <div class="metric-title">Dominant Eigenvalue (λ_max)</div>
+            <div class="metric-value">4.9529</div>
+            <div class="metric-sub">Spectral Radius ρ(A)</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-title">Spectral Gap (λ_1 - λ_2)</div>
+            <div class="metric-value">3.1171</div>
+            <div class="metric-sub">High gap = Rapid network convergence</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-title">Network Scale</div>
+            <div class="metric-value">10 Airports</div>
+            <div class="metric-sub">21 Direct flight routes</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-title">Matrix Symmetry & Residual</div>
+            <div class="metric-value">||Av - λv|| ≈ 0</div>
+            <div class="metric-sub">Residual norm: 3.09e-15</div>
+        </div>
+    </div>
+
+    <div class="two-col">
+        <!-- Network Graph -->
+        <div class="card">
+            <div class="card-title">Flight Network Graph (Node Size ∝ Eigenvector Centrality)</div>
+            
+        <svg viewBox="0 0 800 600" width="100%" height="520" style="background:#F8FAFC; border-radius:12px; border:1px solid #E2E8F0;">
+            <!-- Routes -->
+            <line x1="257.5" y1="120.3" x2="134.3" y2="318.6" stroke="#94A3B8" stroke-width="2" stroke-opacity="0.6" /><line x1="257.5" y1="120.3" x2="275.1" y2="442.0" stroke="#94A3B8" stroke-width="2" stroke-opacity="0.6" /><line x1="257.5" y1="120.3" x2="587.5" y2="243.9" stroke="#94A3B8" stroke-width="2" stroke-opacity="0.6" /><line x1="257.5" y1="120.3" x2="296.1" y2="357.3" stroke="#94A3B8" stroke-width="2" stroke-opacity="0.6" /><line x1="257.5" y1="120.3" x2="127.6" y2="235.0" stroke="#94A3B8" stroke-width="2" stroke-opacity="0.6" /><line x1="257.5" y1="120.3" x2="346.8" y2="446.3" stroke="#94A3B8" stroke-width="2" stroke-opacity="0.6" /><line x1="257.5" y1="120.3" x2="678.9" y2="171.6" stroke="#94A3B8" stroke-width="2" stroke-opacity="0.6" /><line x1="134.3" y1="318.6" x2="275.1" y2="442.0" stroke="#94A3B8" stroke-width="2" stroke-opacity="0.6" /><line x1="134.3" y1="318.6" x2="346.8" y2="446.3" stroke="#94A3B8" stroke-width="2" stroke-opacity="0.6" /><line x1="134.3" y1="318.6" x2="296.1" y2="357.3" stroke="#94A3B8" stroke-width="2" stroke-opacity="0.6" /><line x1="134.3" y1="318.6" x2="127.6" y2="235.0" stroke="#94A3B8" stroke-width="2" stroke-opacity="0.6" /><line x1="134.3" y1="318.6" x2="162.4" y2="396.3" stroke="#94A3B8" stroke-width="2" stroke-opacity="0.6" /><line x1="134.3" y1="318.6" x2="236.9" y2="505.9" stroke="#94A3B8" stroke-width="2" stroke-opacity="0.6" /><line x1="275.1" y1="442.0" x2="346.8" y2="446.3" stroke="#94A3B8" stroke-width="2" stroke-opacity="0.6" /><line x1="275.1" y1="442.0" x2="296.1" y2="357.3" stroke="#94A3B8" stroke-width="2" stroke-opacity="0.6" /><line x1="275.1" y1="442.0" x2="236.9" y2="505.9" stroke="#94A3B8" stroke-width="2" stroke-opacity="0.6" /><line x1="275.1" y1="442.0" x2="162.4" y2="396.3" stroke="#94A3B8" stroke-width="2" stroke-opacity="0.6" /><line x1="296.1" y1="357.3" x2="346.8" y2="446.3" stroke="#94A3B8" stroke-width="2" stroke-opacity="0.6" /><line x1="296.1" y1="357.3" x2="587.5" y2="243.9" stroke="#94A3B8" stroke-width="2" stroke-opacity="0.6" /><line x1="346.8" y1="446.3" x2="236.9" y2="505.9" stroke="#94A3B8" stroke-width="2" stroke-opacity="0.6" /><line x1="587.5" y1="243.9" x2="678.9" y2="171.6" stroke="#94A3B8" stroke-width="2" stroke-opacity="0.6" />
+            <!-- Airport Hubs -->
+            
+            <g class="node-group" data-code="BOM" data-city="Mumbai" data-score="1.0000" data-deg="7">
+                <circle cx="134.3" cy="318.6" r="34.0" fill="#DC2626" stroke="#FFFFFF" stroke-width="3" filter="drop-shadow(0px 3px 6px rgba(0,0,0,0.25))" />
+                <text x="134.3" y="322.6" text-anchor="middle" fill="#FFFFFF" font-size="11" font-weight="bold">BOM</text>
+                <text x="134.3" y="279.6" text-anchor="middle" fill="#0F172A" font-size="10" font-weight="bold">Mumbai (1.00)</text>
+            </g>
+            
+            <g class="node-group" data-code="DEL" data-city="New Delhi" data-score="0.9565" data-deg="7">
+                <circle cx="257.5" cy="120.3" r="33.0" fill="#DC2626" stroke="#FFFFFF" stroke-width="3" filter="drop-shadow(0px 3px 6px rgba(0,0,0,0.25))" />
+                <text x="257.5" y="124.3" text-anchor="middle" fill="#FFFFFF" font-size="11" font-weight="bold">DEL</text>
+                <text x="257.5" y="82.2" text-anchor="middle" fill="#0F172A" font-size="10" font-weight="bold">New Delhi (0.96)</text>
+            </g>
+            
+            <g class="node-group" data-code="BLR" data-city="Bengaluru" data-score="0.9336" data-deg="6">
+                <circle cx="275.1" cy="442.0" r="32.5" fill="#EA580C" stroke="#FFFFFF" stroke-width="3" filter="drop-shadow(0px 3px 6px rgba(0,0,0,0.25))" />
+                <text x="275.1" y="446.0" text-anchor="middle" fill="#FFFFFF" font-size="11" font-weight="bold">BLR</text>
+                <text x="275.1" y="404.5" text-anchor="middle" fill="#0F172A" font-size="10" font-weight="bold">Bengaluru (0.93)</text>
+            </g>
+            
+            <g class="node-group" data-code="MAA" data-city="Chennai" data-score="0.8681" data-deg="5">
+                <circle cx="346.8" cy="446.3" r="31.1" fill="#EA580C" stroke="#FFFFFF" stroke-width="3" filter="drop-shadow(0px 3px 6px rgba(0,0,0,0.25))" />
+                <text x="346.8" y="450.3" text-anchor="middle" fill="#FFFFFF" font-size="11" font-weight="bold">MAA</text>
+                <text x="346.8" y="410.2" text-anchor="middle" fill="#0F172A" font-size="10" font-weight="bold">Chennai (0.87)</text>
+            </g>
+            
+            <g class="node-group" data-code="HYD" data-city="Hyderabad" data-score="0.8435" data-deg="5">
+                <circle cx="296.1" cy="357.3" r="30.6" fill="#EA580C" stroke="#FFFFFF" stroke-width="3" filter="drop-shadow(0px 3px 6px rgba(0,0,0,0.25))" />
+                <text x="296.1" y="361.3" text-anchor="middle" fill="#FFFFFF" font-size="11" font-weight="bold">HYD</text>
+                <text x="296.1" y="321.8" text-anchor="middle" fill="#0F172A" font-size="10" font-weight="bold">Hyderabad (0.84)</text>
+            </g>
+            
+            <g class="node-group" data-code="COK" data-city="Kochi" data-score="0.5657" data-deg="3">
+                <circle cx="236.9" cy="505.9" r="24.4" fill="#3B82F6" stroke="#FFFFFF" stroke-width="3" filter="drop-shadow(0px 3px 6px rgba(0,0,0,0.25))" />
+                <text x="236.9" y="509.9" text-anchor="middle" fill="#FFFFFF" font-size="11" font-weight="bold">COK</text>
+                <text x="236.9" y="476.4" text-anchor="middle" fill="#0F172A" font-size="10" font-weight="bold">Kochi (0.57)</text>
+            </g>
+            
+            <g class="node-group" data-code="CCU" data-city="Kolkata" data-score="0.4195" data-deg="3">
+                <circle cx="587.5" cy="243.9" r="21.2" fill="#64748B" stroke="#FFFFFF" stroke-width="3" filter="drop-shadow(0px 3px 6px rgba(0,0,0,0.25))" />
+                <text x="587.5" y="247.9" text-anchor="middle" fill="#FFFFFF" font-size="11" font-weight="bold">CCU</text>
+                <text x="587.5" y="217.7" text-anchor="middle" fill="#0F172A" font-size="10" font-weight="bold">Kolkata (0.42)</text>
+            </g>
+            
+            <g class="node-group" data-code="AMD" data-city="Ahmedabad" data-score="0.3950" data-deg="2">
+                <circle cx="127.6" cy="235.0" r="20.7" fill="#64748B" stroke="#FFFFFF" stroke-width="3" filter="drop-shadow(0px 3px 6px rgba(0,0,0,0.25))" />
+                <text x="127.6" y="239.0" text-anchor="middle" fill="#FFFFFF" font-size="11" font-weight="bold">AMD</text>
+                <text x="127.6" y="209.4" text-anchor="middle" fill="#0F172A" font-size="10" font-weight="bold">Ahmedabad (0.40)</text>
+            </g>
+            
+            <g class="node-group" data-code="GOI" data-city="Goa" data-score="0.3904" data-deg="2">
+                <circle cx="162.4" cy="396.3" r="20.6" fill="#64748B" stroke="#FFFFFF" stroke-width="3" filter="drop-shadow(0px 3px 6px rgba(0,0,0,0.25))" />
+                <text x="162.4" y="400.3" text-anchor="middle" fill="#FFFFFF" font-size="11" font-weight="bold">GOI</text>
+                <text x="162.4" y="370.7" text-anchor="middle" fill="#0F172A" font-size="10" font-weight="bold">Goa (0.39)</text>
+            </g>
+            
+            <g class="node-group" data-code="GAU" data-city="Guwahati" data-score="0.2778" data-deg="2">
+                <circle cx="678.9" cy="171.6" r="18.1" fill="#64748B" stroke="#FFFFFF" stroke-width="3" filter="drop-shadow(0px 3px 6px rgba(0,0,0,0.25))" />
+                <text x="678.9" y="175.6" text-anchor="middle" fill="#FFFFFF" font-size="11" font-weight="bold">GAU</text>
+                <text x="678.9" y="148.5" text-anchor="middle" fill="#0F172A" font-size="10" font-weight="bold">Guwahati (0.28)</text>
+            </g>
+            
+        </svg>
+        
+            <div style="font-size: 12px; color: #64748B; margin-top: 8px;">
+                * Larger nodes and redder hues represent higher eigenvector centrality scores.
+            </div>
+        </div>
+
+        <!-- Math Foundation -->
+        <div class="card">
+            <div class="card-title">Mathematical Foundation & Intuition</div>
+            
+            <div class="math-box">
+                <div class="formula">A v = λ v &nbsp;&iff;&nbsp; v_i = (1 / λ) &sum;_(j &isin; N(i)) v_j</div>
+                <p style="margin-top: 8px; color:#334155;">
+                    The centrality score of airport <strong>i</strong> is proportional to the sum of importance scores of all airports <strong>j</strong> directly connected to it. Connecting to major hubs confers significantly greater structural prestige than connecting to isolated airports.
+                </p>
+            </div>
+
+            <div class="math-box" style="border-left-color: #10B981;">
+                <strong>Perron-Frobenius Theorem:</strong> Since the airport network is connected (irreducible) and non-negative, the dominant eigenvalue &lambda;<sub>max</sub> is guaranteed to be real and positive, with a strictly positive eigenvector <strong>v</strong> &gt; 0.
+            </div>
+
+            <h4 style="margin: 16px 0 8px 0; font-size:14px; color:#1E293B;">Key Mathematical Discovery from Network:</h4>
+            <ul style="padding-left: 20px; font-size: 13px; color: #475569; line-height: 1.8;">
+                <li><strong>Ahmedabad (AMD) vs Guwahati (GAU):</strong> Both airports have exactly 2 direct flight connections. Yet AMD scores <strong>0.3950</strong> while GAU scores <strong>0.2778</strong> (+42% boost) because AMD connects directly to India's top two hubs (DEL and BOM).</li>
+                <li><strong>Kochi (COK) vs Kolkata (CCU):</strong> Both have 3 connections. COK achieves <strong>0.5657</strong> (+35% over CCU's 0.4195) by strategically bridging BOM, BLR, and MAA.</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Ranked Table -->
+    <div class="card">
+        <div class="card-title">Airport Hub Strategic Ranking</div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Code</th>
+                    <th>Airport & City</th>
+                    <th>Classification</th>
+                    <th>Routes</th>
+                    <th>Eigenvector Score</th>
+                    <th>L2 Score</th>
+                    <th>Degree Rank</th>
+                    <th>Rank Shift</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+            <tr>
+                <td><strong>#1</strong></td>
+                <td><span class="iata-code">BOM</span></td>
+                <td><strong>Mumbai</strong><br><small style="color:#64748B">Chhatrapati Shivaji Maharaj International Airport</small></td>
+                <td><span class="category-tag">National Mega Hub</span></td>
+                <td><strong>7</strong></td>
+                <td>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <strong>1.0000</strong>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 100.0%;"></div></div>
+                    </div>
+                </td>
+                <td>0.4414</td>
+                <td>1</td>
+                <td><span class="badge badge-same">— 0</span></td>
+            </tr>
+            
+
+            <tr>
+                <td><strong>#2</strong></td>
+                <td><span class="iata-code">DEL</span></td>
+                <td><strong>New Delhi</strong><br><small style="color:#64748B">Indira Gandhi International Airport</small></td>
+                <td><span class="category-tag">National Mega Hub</span></td>
+                <td><strong>7</strong></td>
+                <td>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <strong>0.9565</strong>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 95.7%;"></div></div>
+                    </div>
+                </td>
+                <td>0.4222</td>
+                <td>1</td>
+                <td><span class="badge badge-down">▼ 1</span></td>
+            </tr>
+            
+
+            <tr>
+                <td><strong>#3</strong></td>
+                <td><span class="iata-code">BLR</span></td>
+                <td><strong>Bengaluru</strong><br><small style="color:#64748B">Kempegowda International Airport</small></td>
+                <td><span class="category-tag">Primary Metro Hub</span></td>
+                <td><strong>6</strong></td>
+                <td>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <strong>0.9336</strong>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 93.4%;"></div></div>
+                    </div>
+                </td>
+                <td>0.4121</td>
+                <td>3</td>
+                <td><span class="badge badge-same">— 0</span></td>
+            </tr>
+            
+
+            <tr>
+                <td><strong>#4</strong></td>
+                <td><span class="iata-code">MAA</span></td>
+                <td><strong>Chennai</strong><br><small style="color:#64748B">Chennai International Airport</small></td>
+                <td><span class="category-tag">Primary Metro Hub</span></td>
+                <td><strong>5</strong></td>
+                <td>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <strong>0.8681</strong>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 86.8%;"></div></div>
+                    </div>
+                </td>
+                <td>0.3831</td>
+                <td>4</td>
+                <td><span class="badge badge-same">— 0</span></td>
+            </tr>
+            
+
+            <tr>
+                <td><strong>#5</strong></td>
+                <td><span class="iata-code">HYD</span></td>
+                <td><strong>Hyderabad</strong><br><small style="color:#64748B">Rajiv Gandhi International Airport</small></td>
+                <td><span class="category-tag">Primary Metro Hub</span></td>
+                <td><strong>5</strong></td>
+                <td>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <strong>0.8435</strong>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 84.4%;"></div></div>
+                    </div>
+                </td>
+                <td>0.3723</td>
+                <td>4</td>
+                <td><span class="badge badge-down">▼ 1</span></td>
+            </tr>
+            
+
+            <tr>
+                <td><strong>#6</strong></td>
+                <td><span class="iata-code">COK</span></td>
+                <td><strong>Kochi</strong><br><small style="color:#64748B">Cochin International Airport</small></td>
+                <td><span class="category-tag">Regional Gateway (South)</span></td>
+                <td><strong>3</strong></td>
+                <td>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <strong>0.5657</strong>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 56.6%;"></div></div>
+                    </div>
+                </td>
+                <td>0.2497</td>
+                <td>6</td>
+                <td><span class="badge badge-same">— 0</span></td>
+            </tr>
+            
+
+            <tr>
+                <td><strong>#7</strong></td>
+                <td><span class="iata-code">CCU</span></td>
+                <td><strong>Kolkata</strong><br><small style="color:#64748B">Netaji Subhash Chandra Bose International Airport</small></td>
+                <td><span class="category-tag">Regional Hub (East)</span></td>
+                <td><strong>3</strong></td>
+                <td>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <strong>0.4195</strong>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 41.9%;"></div></div>
+                    </div>
+                </td>
+                <td>0.1852</td>
+                <td>6</td>
+                <td><span class="badge badge-down">▼ 1</span></td>
+            </tr>
+            
+
+            <tr>
+                <td><strong>#8</strong></td>
+                <td><span class="iata-code">AMD</span></td>
+                <td><strong>Ahmedabad</strong><br><small style="color:#64748B">Sardar Vallabhbhai Patel International Airport</small></td>
+                <td><span class="category-tag">Regional Hub (West)</span></td>
+                <td><strong>2</strong></td>
+                <td>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <strong>0.3950</strong>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 39.5%;"></div></div>
+                    </div>
+                </td>
+                <td>0.1744</td>
+                <td>8</td>
+                <td><span class="badge badge-same">— 0</span></td>
+            </tr>
+            
+
+            <tr>
+                <td><strong>#9</strong></td>
+                <td><span class="iata-code">GOI</span></td>
+                <td><strong>Goa</strong><br><small style="color:#64748B">Dabolim / Manohar International Airport</small></td>
+                <td><span class="category-tag">Tourist Gateway (West)</span></td>
+                <td><strong>2</strong></td>
+                <td>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <strong>0.3904</strong>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 39.0%;"></div></div>
+                    </div>
+                </td>
+                <td>0.1723</td>
+                <td>8</td>
+                <td><span class="badge badge-down">▼ 1</span></td>
+            </tr>
+            
+
+            <tr>
+                <td><strong>#10</strong></td>
+                <td><span class="iata-code">GAU</span></td>
+                <td><strong>Guwahati</strong><br><small style="color:#64748B">Lokpriya Gopinath Bordoloi International Airport</small></td>
+                <td><span class="category-tag">Regional Gateway (North-East)</span></td>
+                <td><strong>2</strong></td>
+                <td>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <strong>0.2778</strong>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 27.8%;"></div></div>
+                    </div>
+                </td>
+                <td>0.1226</td>
+                <td>8</td>
+                <td><span class="badge badge-down">▼ 2</span></td>
+            </tr>
+            
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Adjacency Matrix Heatmap Table -->
+    <div class="card">
+        <div class="card-title">Network Adjacency Matrix A (10×10 Symmetric)</div>
+        <p style="font-size: 13px; color: #64748B; margin-bottom: 12px;">
+            A<sub>ij</sub> = 1 if airports i and j have a bidirectional direct flight connection, 0 otherwise.
+        </p>
+        <div style="overflow-x: auto;">
+            <table class="matrix-table">
+                <thead>
+                    <tr><th></th><th>DEL</th><th>BOM</th><th>BLR</th><th>HYD</th><th>MAA</th><th>CCU</th><th>AMD</th><th>COK</th><th>GOI</th><th>GAU</th></tr>
+                </thead>
+                <tbody>
+                    <tr><th>DEL</th><td class="cell-zero">0</td><td class="cell-one">1</td><td class="cell-one">1</td><td class="cell-one">1</td><td class="cell-one">1</td><td class="cell-one">1</td><td class="cell-one">1</td><td class="cell-zero">0</td><td class="cell-zero">0</td><td class="cell-one">1</td></tr>
+<tr><th>BOM</th><td class="cell-one">1</td><td class="cell-zero">0</td><td class="cell-one">1</td><td class="cell-one">1</td><td class="cell-one">1</td><td class="cell-zero">0</td><td class="cell-one">1</td><td class="cell-one">1</td><td class="cell-one">1</td><td class="cell-zero">0</td></tr>
+<tr><th>BLR</th><td class="cell-one">1</td><td class="cell-one">1</td><td class="cell-zero">0</td><td class="cell-one">1</td><td class="cell-one">1</td><td class="cell-zero">0</td><td class="cell-zero">0</td><td class="cell-one">1</td><td class="cell-one">1</td><td class="cell-zero">0</td></tr>
+<tr><th>HYD</th><td class="cell-one">1</td><td class="cell-one">1</td><td class="cell-one">1</td><td class="cell-zero">0</td><td class="cell-one">1</td><td class="cell-one">1</td><td class="cell-zero">0</td><td class="cell-zero">0</td><td class="cell-zero">0</td><td class="cell-zero">0</td></tr>
+<tr><th>MAA</th><td class="cell-one">1</td><td class="cell-one">1</td><td class="cell-one">1</td><td class="cell-one">1</td><td class="cell-zero">0</td><td class="cell-zero">0</td><td class="cell-zero">0</td><td class="cell-one">1</td><td class="cell-zero">0</td><td class="cell-zero">0</td></tr>
+<tr><th>CCU</th><td class="cell-one">1</td><td class="cell-zero">0</td><td class="cell-zero">0</td><td class="cell-one">1</td><td class="cell-zero">0</td><td class="cell-zero">0</td><td class="cell-zero">0</td><td class="cell-zero">0</td><td class="cell-zero">0</td><td class="cell-one">1</td></tr>
+<tr><th>AMD</th><td class="cell-one">1</td><td class="cell-one">1</td><td class="cell-zero">0</td><td class="cell-zero">0</td><td class="cell-zero">0</td><td class="cell-zero">0</td><td class="cell-zero">0</td><td class="cell-zero">0</td><td class="cell-zero">0</td><td class="cell-zero">0</td></tr>
+<tr><th>COK</th><td class="cell-zero">0</td><td class="cell-one">1</td><td class="cell-one">1</td><td class="cell-zero">0</td><td class="cell-one">1</td><td class="cell-zero">0</td><td class="cell-zero">0</td><td class="cell-zero">0</td><td class="cell-zero">0</td><td class="cell-zero">0</td></tr>
+<tr><th>GOI</th><td class="cell-zero">0</td><td class="cell-one">1</td><td class="cell-one">1</td><td class="cell-zero">0</td><td class="cell-zero">0</td><td class="cell-zero">0</td><td class="cell-zero">0</td><td class="cell-zero">0</td><td class="cell-zero">0</td><td class="cell-zero">0</td></tr>
+<tr><th>GAU</th><td class="cell-one">1</td><td class="cell-zero">0</td><td class="cell-zero">0</td><td class="cell-zero">0</td><td class="cell-zero">0</td><td class="cell-one">1</td><td class="cell-zero">0</td><td class="cell-zero">0</td><td class="cell-zero">0</td><td class="cell-zero">0</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- PageRank Comparison -->
+    <div class="card">
+        <div class="card-title">Comparison: Eigenvector Centrality vs Google PageRank</div>
+        <table class="comparison-table">
+            <thead>
+                <tr>
+                    <th>Feature</th>
+                    <th>Airport Hub Detection (Our Project)</th>
+                    <th>Google PageRank</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Domain</strong></td>
+                    <td>Airports & Physical Flight Corridors</td>
+                    <td>Webpages & Hyperlinks</td>
+                </tr>
+                <tr>
+                    <td><strong>Matrix Type</strong></td>
+                    <td>Adjacency Matrix A (Symmetric, Undirected)</td>
+                    <td>Column-Stochastic Transition Matrix P with Damping</td>
+                </tr>
+                <tr>
+                    <td><strong>Formulation</strong></td>
+                    <td>A v = &lambda;<sub>max</sub> v (Dominant Eigenvector)</td>
+                    <td>&pi; = M &pi; (Stationary Distribution, &lambda; = 1)</td>
+                </tr>
+                <tr>
+                    <td><strong>Directionality</strong></td>
+                    <td>Bidirectional routes (A = A<sup>T</sup>)</td>
+                    <td>Directed hyper-links (asymmetric)</td>
+                </tr>
+                <tr>
+                    <td><strong>Damping Factor</strong></td>
+                    <td>None required (Pure Adjacency Spectrum)</td>
+                    <td>Required (d &approx; 0.85) to prevent spider traps / dead ends</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</body>
+</html>
