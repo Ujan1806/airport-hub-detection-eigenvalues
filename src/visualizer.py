@@ -1,13 +1,13 @@
 """
 visualizer.py
 =============
-Visual Dashboard Generator for Airport Hub Detection.
+Publication-Quality Visual Dashboard Generator for Airport Hub Detection.
 Produces high-resolution figures:
-1. Airport Flight Network Graph (Eigenvector Centrality scaled)
-2. Adjacency Matrix Heatmap
-3. Airport Centrality Ranking & Comparison Charts
-4. Eigenvalue Spectrum & Power Iteration Convergence
-5. Unified Multi-Panel Executive Dashboard
+1. Flight Network Graph (Route thickness scaled by daily flights, nodes scaled by centrality)
+2. Dual Matrix Heatmaps (Binary Adjacency A vs. Weighted Frequency W)
+3. Three-Way Centrality Comparison (Topology vs Flight Volume vs Degree)
+4. Dual Eigenvalue Spectrum & Power Iteration Convergence
+5. Multi-Panel Executive Presentation Dashboard
 """
 
 import sys
@@ -30,7 +30,7 @@ from src.spectral_analysis import SpectralHubDetector
 
 
 class HubVisualizer:
-    """Generates publication-quality visualizations for the linear algebra airport model."""
+    """Generates modern, presentation-grade visualizations for the linear algebra project."""
 
     def __init__(self, detector: SpectralHubDetector, output_dir: Path = None):
         self.detector = detector
@@ -40,44 +40,49 @@ class HubVisualizer:
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
-        # Style preferences
+        # Style preferences for academic and executive clarity
         plt.rcParams['font.sans-serif'] = 'DejaVu Sans'
-        plt.rcParams['axes.edgecolor'] = '#CCCCCC'
-        plt.rcParams['axes.linewidth'] = 0.8
+        plt.rcParams['axes.edgecolor'] = '#CBD5E1'
+        plt.rcParams['axes.linewidth'] = 0.9
 
     def plot_network_graph(self, save_path: Optional[Path] = None, ax: Optional[plt.Axes] = None) -> Path:
         """
-        Visualizes the flight route network.
-        Nodes are scaled and colored according to their Eigenvector Centrality score.
-        Positions correspond to geographic coordinates (lon, lat) of the airports.
+        Visualizes the Indian flight transit network.
+        - Edge widths are proportional to daily flight frequency (e.g. DEL-BOM is thickest).
+        - Nodes are sized and colored according to Weighted Eigenvector Centrality.
+        - Coordinates follow actual airport geographic coordinates.
         """
         standalone = ax is None
         if standalone:
-            fig, ax = plt.subplots(figsize=(11, 9), facecolor="#F8FAFC")
+            fig, ax = plt.subplots(figsize=(12, 10), facecolor="#F8FAFC")
         else:
             fig = ax.figure
 
         G = self.network.graph
         df = self.detector.results_df.set_index("code")
 
-        # Position using geographic coordinates (lon = x, lat = y)
         pos = {
             code: (self.network.code_to_meta[code]["lon"], self.network.code_to_meta[code]["lat"])
             for code in self.network.airport_codes
         }
 
-        # Centrality scores for node sizing and color mapping
-        scores = np.array([df.loc[code, "eigenvector_score"] for code in self.network.airport_codes])
-        node_sizes = 800 + (scores ** 1.5) * 2600  # Non-linear scaling for contrast
+        # Centrality scores for node sizing and coloring
+        w_scores = np.array([df.loc[code, "weighted_eigen_score"] for code in self.network.airport_codes])
+        node_sizes = 700 + (w_scores ** 1.6) * 3200
 
-        # Draw flight routes (edges)
+        # Draw flight routes (edges) with width scaled by daily flight count
+        edges = G.edges(data=True)
+        flight_counts = [d.get("daily_flights", 1) for _, _, d in edges]
+        max_flights = max(flight_counts)
+        edge_widths = [1.2 + (f / max_flights) * 6.5 for f in flight_counts]
+
         nx.draw_networkx_edges(
             G,
             pos,
             ax=ax,
-            edge_color="#94A3B8",
-            width=1.6,
-            alpha=0.65,
+            edge_color="#3B82F6",
+            width=edge_widths,
+            alpha=0.55,
             style="solid"
         )
 
@@ -87,40 +92,34 @@ class HubVisualizer:
             pos,
             ax=ax,
             node_size=node_sizes,
-            node_color=scores,
+            node_color=w_scores,
             cmap=plt.cm.plasma,
-            edgecolors="#1E293B",
-            linewidths=1.8,
-            alpha=0.92
+            edgecolors="#0F172A",
+            linewidths=2.0,
+            alpha=0.95
         )
 
-        # Draw labels with IATA code and City name
-        labels = {
-            code: f"{code}\n({self.network.code_to_meta[code]['city']})"
-            for code in self.network.airport_codes
-        }
-
-        # Adjust label offsets for clarity
+        # Labels with airport code, city, and daily flights
         for code, (x, y) in pos.items():
-            score = df.loc[code, "eigenvector_score"]
+            w_score = df.loc[code, "weighted_eigen_score"]
             city = self.network.code_to_meta[code]["city"]
+            flights = df.loc[code, "daily_flights"]
             ax.text(
-                x, y + 0.55,
-                f"{code}\n{city}\n[{score:.2f}]",
+                x, y + 0.58,
+                f"{code}\n{city}\n({flights} flt/d | {w_score:.2f})",
                 fontsize=8.5,
-                fontweight='bold' if score > 0.8 else 'normal',
+                fontweight='bold' if w_score > 0.8 else 'normal',
                 ha='center',
                 va='bottom',
-                bbox=dict(boxstyle="round,pad=0.2", facecolor="white", alpha=0.85, edgecolor="#CBD5E1", linewidth=0.7)
+                bbox=dict(boxstyle="round,pad=0.25", facecolor="#FFFFFF", alpha=0.92, edgecolor="#94A3B8", linewidth=0.8)
             )
 
-        # Add colorbar
         cbar = fig.colorbar(nodes, ax=ax, fraction=0.035, pad=0.04)
-        cbar.set_label("Eigenvector Centrality Score (Normalized)", fontsize=10, fontweight='bold', labelpad=8)
-        cbar.ax.tick_params(labelsize=9)
+        cbar.set_label("Weighted Eigenvector Centrality Score", fontsize=9.5, fontweight='bold', labelpad=8)
+        cbar.ax.tick_params(labelsize=8.5)
 
         ax.set_title(
-            "Airport Flight Network Graph (Eigenvector Centrality)",
+            "India Aviation Transit Network: Flight Frequency & Eigenvector Hubs",
             fontsize=13,
             fontweight="bold",
             pad=14,
@@ -129,7 +128,7 @@ class HubVisualizer:
         ax.set_xlabel("Longitude (°E)", fontsize=9, color="#475569")
         ax.set_ylabel("Latitude (°N)", fontsize=9, color="#475569")
         ax.set_facecolor("#F8FAFC")
-        ax.grid(True, linestyle="--", alpha=0.3, color="#94A3B8")
+        ax.grid(True, linestyle="--", alpha=0.35, color="#94A3B8")
 
         if standalone:
             plt.tight_layout()
@@ -142,47 +141,57 @@ class HubVisualizer:
 
     def plot_adjacency_heatmap(self, save_path: Optional[Path] = None, ax: Optional[plt.Axes] = None) -> Path:
         """
-        Visualizes the Adjacency Matrix A as an annotated heatmap.
-        Highlights symmetric bidirectional routes (1) and non-connections (0).
+        Visualizes the matrices:
+        - When standalone: Creates side-by-side heatmaps of A (Binary) and W (Flight Counts).
+        - When embedded in multi-panel: Displays the Weighted Matrix W with full flight counts.
         """
         standalone = ax is None
         if standalone:
-            fig, ax = plt.subplots(figsize=(8.5, 7.5), facecolor="#F8FAFC")
+            fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 7.5), facecolor="#F8FAFC")
         else:
             fig = ax.figure
+            ax2 = ax
 
         df_A = self.network.adjacency_df
+        df_W = self.network.weighted_df
 
-        # Custom colormap: 0 = light grey-blue, 1 = deep navy
-        cmap = sns.color_palette(["#F1F5F9", "#1E40AF"], as_cmap=True)
+        if standalone:
+            # Heatmap 1: Binary Adjacency A
+            cmap_A = sns.color_palette(["#F1F5F9", "#2563EB"], as_cmap=True)
+            sns.heatmap(
+                df_A,
+                ax=ax1,
+                cmap=cmap_A,
+                cbar=False,
+                annot=True,
+                fmt="d",
+                linewidths=1.0,
+                linecolor="#CBD5E1",
+                square=True,
+                annot_kws={"fontsize": 9, "fontweight": "bold"}
+            )
+            ax1.set_title("Binary Adjacency Matrix A (Topological Routes)", fontsize=11.5, fontweight="bold", pad=10)
+            ax1.set_xticklabels(ax1.get_xticklabels(), rotation=45, ha="right", fontsize=8.5)
+            ax1.set_yticklabels(ax1.get_yticklabels(), rotation=0, fontsize=8.5)
 
+        # Heatmap 2: Weighted Frequency W
+        cmap_W = sns.cubehelix_palette(start=2.8, rot=0.1, dark=0.15, light=0.96, reverse=False, as_cmap=True)
         sns.heatmap(
-            df_A,
-            ax=ax,
-            cmap=cmap,
-            cbar=False,
+            df_W,
+            ax=ax2,
+            cmap="YlGnBu",
+            cbar=True,
             annot=True,
             fmt="d",
-            linewidths=1.2,
+            linewidths=1.0,
             linecolor="#CBD5E1",
             square=True,
-            annot_kws={"fontsize": 10, "fontweight": "bold"}
+            annot_kws={"fontsize": 8.5, "fontweight": "bold"},
+            cbar_kws={"label": "Daily Flights between Airports"}
         )
-
-        ax.set_title(
-            f"Adjacency Matrix A ({len(df_A)}×{len(df_A)} Symmetric)",
-            fontsize=13,
-            fontweight="bold",
-            pad=14,
-            color="#0F172A"
-        )
-        ax.set_xticklabels(ax.get_xticklabels(), rotation=45, ha="right", fontsize=9, fontweight="bold")
-        ax.set_yticklabels(ax.get_yticklabels(), rotation=0, fontsize=9, fontweight="bold")
-
-        # Custom legend patch
-        patch_0 = mpatches.Patch(color="#F1F5F9", label="0 = No Direct Flight")
-        patch_1 = mpatches.Patch(color="#1E40AF", label="1 = Direct Route")
-        ax.legend(handles=[patch_1, patch_0], loc="upper right", bbox_to_anchor=(1.35, 1.0), frameon=True)
+        ax2.set_title("Weighted Adjacency Matrix W (Daily Flight Frequency)", fontsize=11.5, fontweight="bold", pad=10)
+        ax2.set_xticklabels(ax2.get_xticklabels(), rotation=45, ha="right", fontsize=8.5)
+        ax2.set_yticklabels(ax2.get_yticklabels(), rotation=0, fontsize=8.5)
 
         if standalone:
             plt.tight_layout()
@@ -195,69 +204,59 @@ class HubVisualizer:
 
     def plot_centrality_ranking(self, save_path: Optional[Path] = None, ax: Optional[plt.Axes] = None) -> Path:
         """
-        Displays a horizontal ranking bar chart comparing:
-        Eigenvector Centrality vs Degree Centrality (Connection Count).
-        Clearly visualizes structural prestige vs naive counting.
+        Contrasts:
+        - Topological Centrality (Unweighted A)
+        - Operational Capacity Centrality (Weighted W)
+        - Total Daily Flights
+        Shows how flight volume elevates true transit hubs.
         """
         standalone = ax is None
         if standalone:
-            fig, ax = plt.subplots(figsize=(10, 6.5), facecolor="#F8FAFC")
+            fig, ax = plt.subplots(figsize=(11, 7), facecolor="#F8FAFC")
         else:
             fig = ax.figure
 
         df = self.detector.results_df.copy()
-        df = df.sort_values(by="eigenvector_score", ascending=True)  # ascending for horizontal bars
+        df = df.sort_values(by="weighted_eigen_score", ascending=True)
 
         y_pos = np.arange(len(df))
-        height = 0.42
+        height = 0.35
 
-        # Color mapping based on eigenvector score
-        colors = plt.cm.plasma(df["eigenvector_score"])
-
-        # Eigenvector Centrality bars
+        # Weighted Eigenvector score bars
         bars1 = ax.barh(
             y_pos + height / 2,
-            df["eigenvector_score"],
+            df["weighted_eigen_score"],
             height=height,
-            color=colors,
-            edgecolor="#1E293B",
+            color="#7C3AED",  # Deep Purple
+            edgecolor="#4C1D95",
             linewidth=1.0,
-            label="Eigenvector Centrality (Score)",
-            alpha=0.95
+            label="Weighted Hub Score (Flight Volume W)",
+            alpha=0.92
         )
 
-        # Degree Centrality (normalized to max degree for visual comparison)
-        max_deg = df["connections"].max()
-        deg_scaled = df["connections"] / max_deg
+        # Unweighted Eigenvector score bars
         bars2 = ax.barh(
             y_pos - height / 2,
-            deg_scaled,
+            df["unweighted_eigen_score"],
             height=height,
-            color="#94A3B8",
-            edgecolor="#475569",
+            color="#0284C7",  # Sky Blue
+            edgecolor="#0369A1",
             linewidth=1.0,
-            label="Degree Centrality (Scaled Routes)",
-            alpha=0.65
+            label="Unweighted Hub Score (Topology A)",
+            alpha=0.75
         )
 
-        # Value annotations on bars
-        for i, (score, deg, count) in enumerate(zip(df["eigenvector_score"], deg_scaled, df["connections"])):
-            ax.text(score + 0.02, y_pos[i] + height / 2, f"{score:.2f}", va="center", fontsize=8.5, fontweight="bold")
-            ax.text(deg + 0.02, y_pos[i] - height / 2, f"{count} routes", va="center", fontsize=8, color="#475569")
+        for i, (_, row) in enumerate(df.iterrows()):
+            ax.text(row["weighted_eigen_score"] + 0.02, y_pos[i] + height / 2, f"{row['weighted_eigen_score']:.2f} ({row['daily_flights']} flt)", va="center", fontsize=8, fontweight="bold", color="#581C87")
+            ax.text(row["unweighted_eigen_score"] + 0.02, y_pos[i] - height / 2, f"{row['unweighted_eigen_score']:.2f}", va="center", fontsize=8, color="#075985")
 
         ax.set_yticks(y_pos)
-        ax.set_yticklabels([f"{row['code']} - {row['city']}" for _, row in df.iterrows()], fontsize=9.5, fontweight="bold")
-        ax.set_xlabel("Normalized Score (Max = 1.00)", fontsize=10, fontweight="bold", color="#0F172A")
-        ax.set_title(
-            "Airport Importance: Eigenvector Centrality vs Route Count",
-            fontsize=13,
-            fontweight="bold",
-            pad=14,
-            color="#0F172A"
-        )
-        ax.set_xlim(0, 1.22)
-        ax.grid(axis="x", linestyle="--", alpha=0.4, color="#94A3B8")
-        ax.legend(loc="lower right", framealpha=0.95)
+        ax.set_yticklabels([f"{row['code']} - {row['city']}" for _, row in df.iterrows()], fontsize=9, fontweight="bold")
+        ax.set_xlabel("Normalized Centrality Score (Max = 1.00)", fontsize=9.5, fontweight="bold", color="#0F172A")
+        ax.set_title("Hub Centrality Comparison: Topological Routes vs. Daily Flight Volume", fontsize=12, fontweight="bold", pad=12)
+        ax.set_xlim(0, 1.25)
+        ax.grid(axis="x", linestyle="--", alpha=0.35, color="#94A3B8")
+        ax.legend(loc="lower right", framealpha=0.95, fontsize=8.5)
         ax.set_facecolor("#F8FAFC")
 
         if standalone:
@@ -271,58 +270,54 @@ class HubVisualizer:
 
     def plot_eigenvalue_spectrum(self, save_path: Optional[Path] = None, ax: Optional[plt.Axes] = None) -> Path:
         """
-        Visualizes the full Eigenvalue Spectrum (lambda_1 to lambda_n).
-        Highlights the dominant eigenvalue lambda_max and the spectral gap.
+        Visualizes the Eigenvalue Spectrum of both matrices and Power Iteration convergence.
         """
         standalone = ax is None
         if standalone:
-            fig, ax = plt.subplots(figsize=(9, 5.5), facecolor="#F8FAFC")
+            fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 6), facecolor="#F8FAFC")
         else:
             fig = ax.figure
+            ax1 = ax
+            ax2 = None
 
-        evals = self.detector.eigenvalues
-        x_indices = np.arange(1, len(evals) + 1)
+        u_evals = self.detector.unweighted["eigenvalues"]
+        w_evals = self.detector.weighted["eigenvalues"]
+        x_idx = np.arange(1, len(u_evals) + 1)
 
-        # Highlight dominant eigenvalue with distinctive gold/ruby color
-        bar_colors = ["#DC2626" if i == 0 else "#2563EB" if val > 0 else "#64748B" for i, val in enumerate(evals)]
-
-        bars = ax.bar(x_indices, evals, color=bar_colors, edgecolor="#0F172A", linewidth=1.1, width=0.65, alpha=0.9)
-
-        # Annotate dominant eigenvalue
-        ax.annotate(
-            f"Dominant $\\lambda_1 = {evals[0]:.2f}$\n(Governs Centrality)",
-            xy=(1, evals[0]),
-            xytext=(1.8, evals[0] - 0.2),
-            arrowprops=dict(facecolor="#DC2626", shrink=0.08, width=1.5, headwidth=7),
-            fontsize=9.5,
-            fontweight="bold",
-            color="#991B1B"
+        # Bar chart of eigenvalues
+        ax1.bar(
+            x_idx - 0.18, u_evals, width=0.35, color="#0284C7", edgecolor="#0369A1",
+            label=f"Unweighted A ($\\lambda_1={u_evals[0]:.2f}$, gap={self.detector.unweighted['spectral_gap']:.2f})"
+        )
+        ax1.bar(
+            x_idx + 0.18, w_evals / (w_evals[0] / u_evals[0]), width=0.35, color="#7C3AED", edgecolor="#4C1D95",
+            label=f"Weighted W (Scaled, $\\lambda_1={w_evals[0]:.1f}$, gap={self.detector.weighted['spectral_gap']:.1f})"
         )
 
-        # Annotate spectral gap
-        gap = self.detector.spectral_gap
-        ax.text(
-            0.65, 0.85,
-            f"Spectral Gap ($\\lambda_1 - \\lambda_2$): {gap:.2f}\nTrace $\\sum \\lambda_i = {np.sum(evals):.1f}$",
-            transform=ax.transAxes,
-            fontsize=9,
-            bbox=dict(boxstyle="round,pad=0.4", facecolor="#EFF6FF", edgecolor="#3B82F6", linewidth=1.0)
-        )
+        ax1.axhline(0, color="#0F172A", linestyle="-", linewidth=0.8)
+        ax1.set_xticks(x_idx)
+        ax1.set_xticklabels([f"$\\lambda_{{{i}}}$" for i in x_idx], fontsize=8.5)
+        ax1.set_xlabel("Eigenvalue Index", fontsize=9.5, fontweight="bold")
+        ax1.set_ylabel("Eigenvalue Magnitude", fontsize=9.5, fontweight="bold")
+        ax1.set_title("Eigenvalue Spectrum & Spectral Gap", fontsize=11.5, fontweight="bold", pad=12)
+        ax1.legend(loc="upper right", fontsize=8.5)
+        ax1.grid(axis="y", linestyle="--", alpha=0.35)
+        ax1.set_facecolor("#F8FAFC")
 
-        ax.axhline(0, color="#0F172A", linestyle="-", linewidth=0.8)
-        ax.set_xticks(x_indices)
-        ax.set_xticklabels([f"$\\lambda_{{{i}}}$" for i in x_indices], fontsize=9)
-        ax.set_xlabel("Eigenvalue Index", fontsize=10, fontweight="bold", color="#0F172A")
-        ax.set_ylabel("Eigenvalue Magnitude ($\\lambda$)", fontsize=10, fontweight="bold", color="#0F172A")
-        ax.set_title(
-            "Eigenvalue Spectrum of Airport Adjacency Matrix",
-            fontsize=13,
-            fontweight="bold",
-            pad=14,
-            color="#0F172A"
-        )
-        ax.grid(axis="y", linestyle="--", alpha=0.4, color="#94A3B8")
-        ax.set_facecolor("#F8FAFC")
+        if standalone and ax2 is not None:
+            # Convergence rate plot for Power Iteration
+            u_hist = [h["step_error"] for h in self.detector.unweighted["power_iteration_history"]]
+            w_hist = [h["step_error"] for h in self.detector.weighted["power_iteration_history"]]
+
+            ax2.plot(range(1, len(u_hist) + 1), u_hist, marker="o", markersize=4, color="#0284C7", label=f"Unweighted A ({len(u_hist)} iters)")
+            ax2.plot(range(1, len(w_hist) + 1), w_hist, marker="s", markersize=4, color="#7C3AED", label=f"Weighted W ({len(w_hist)} iters)")
+            ax2.set_yscale("log")
+            ax2.set_xlabel("Iteration Step (k)", fontsize=9.5, fontweight="bold")
+            ax2.set_ylabel("Step Residual $||v^{(k+1)} - v^{(k)}||_2$", fontsize=9.5, fontweight="bold")
+            ax2.set_title("Power Iteration Numerical Convergence (Log Scale)", fontsize=11.5, fontweight="bold", pad=12)
+            ax2.grid(True, linestyle="--", alpha=0.35)
+            ax2.legend(loc="upper right", fontsize=8.5)
+            ax2.set_facecolor("#F8FAFC")
 
         if standalone:
             plt.tight_layout()
@@ -335,27 +330,24 @@ class HubVisualizer:
 
     def plot_executive_dashboard(self, save_path: Optional[Path] = None) -> Path:
         """
-        Combines all four core visualizations into a unified 2x2 presentation dashboard.
-        Ideal for reports, printouts, and project defense presentations.
+        Combines all key analyses into a unified 2x2 executive presentation dashboard.
         """
-        fig = plt.figure(figsize=(18, 14), facecolor="#F8FAFC")
-        gs = GridSpec(2, 2, figure=fig, hspace=0.28, wspace=0.22)
+        fig = plt.figure(figsize=(19, 15), facecolor="#F8FAFC")
+        gs = GridSpec(2, 2, figure=fig, hspace=0.28, wspace=0.24)
 
         ax_net = fig.add_subplot(gs[0, 0])
         ax_heat = fig.add_subplot(gs[0, 1])
         ax_rank = fig.add_subplot(gs[1, 0])
         ax_spec = fig.add_subplot(gs[1, 1])
 
-        # Header title
         fig.suptitle(
-            "Airport Hub Detection Dashboard — Linear Algebra & Eigenvector Centrality",
-            fontsize=18,
+            "Airport Hub Detection Executive Dashboard — Applied Linear Algebra (MFAD)",
+            fontsize=17,
             fontweight="bold",
             color="#0F172A",
             y=0.97
         )
 
-        # Plot individual panels
         self.plot_network_graph(ax=ax_net)
         self.plot_adjacency_heatmap(ax=ax_heat)
         self.plot_centrality_ranking(ax=ax_rank)
@@ -372,19 +364,10 @@ class HubVisualizer:
 if __name__ == "__main__":
     net = AirportNetwork()
     detector = SpectralHubDetector(net)
-    detector.compute_eendecomposition()
-    detector.build_comparison_dataframe()
-
     viz = HubVisualizer(detector)
     f1 = viz.plot_network_graph()
     f2 = viz.plot_adjacency_heatmap()
     f3 = viz.plot_centrality_ranking()
     f4 = viz.plot_eigenvalue_spectrum()
     f_dash = viz.plot_executive_dashboard()
-
-    print("Visualizations created successfully:")
-    print(f"1. Network Graph: {f1}")
-    print(f"2. Heatmap: {f2}")
-    print(f"3. Ranking: {f3}")
-    print(f"4. Spectrum: {f4}")
-    print(f"5. Executive Dashboard: {f_dash}")
+    print("All visualizations generated successfully.")

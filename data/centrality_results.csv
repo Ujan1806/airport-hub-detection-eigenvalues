@@ -1,11 +1,11 @@
-code,city,airport_name,category,connections,eigenvector_score,l2_score,sum_share_pct,nx_eigen_val,degree_centrality,betweenness,closeness,eigen_rank,degree_rank,rank_shift
-BOM,Mumbai,Chhatrapati Shivaji Maharaj International Airport,National Mega Hub,7,1.0,0.4414,15.04,0.4414,0.7778,0.2176,0.8182,1,1,0
-DEL,New Delhi,Indira Gandhi International Airport,National Mega Hub,7,0.9565,0.4222,14.38,0.4222,0.7778,0.3194,0.8182,2,1,-1
-BLR,Bengaluru,Kempegowda International Airport,Primary Metro Hub,6,0.9336,0.4121,14.04,0.4121,0.6667,0.1204,0.75,3,3,0
-MAA,Chennai,Chennai International Airport,Primary Metro Hub,5,0.8681,0.3831,13.05,0.3831,0.5556,0.037,0.6923,4,4,0
-HYD,Hyderabad,Rajiv Gandhi International Airport,Primary Metro Hub,5,0.8435,0.3723,12.68,0.3723,0.5556,0.0694,0.6923,5,4,-1
-COK,Kochi,Cochin International Airport,Regional Gateway (South),3,0.5657,0.2497,8.51,0.2497,0.3333,0.0,0.5294,6,6,0
-CCU,Kolkata,Netaji Subhash Chandra Bose International Airport,Regional Hub (East),3,0.4195,0.1852,6.31,0.1852,0.3333,0.0139,0.5294,7,6,-1
-AMD,Ahmedabad,Sardar Vallabhbhai Patel International Airport,Regional Hub (West),2,0.395,0.1744,5.94,0.1744,0.2222,0.0,0.5625,8,8,0
-GOI,Goa,Dabolim / Manohar International Airport,Tourist Gateway (West),2,0.3904,0.1723,5.87,0.1723,0.2222,0.0,0.5,9,8,-1
-GAU,Guwahati,Lokpriya Gopinath Bordoloi International Airport,Regional Gateway (North-East),2,0.2778,0.1226,4.18,0.1226,0.2222,0.0,0.5,10,8,-2
+code,city,airport_name,category,routes,daily_flights,unweighted_eigen_score,unweighted_l2_score,weighted_eigen_score,weighted_l2_score,degree_centrality,betweenness,closeness,unweighted_rank,weighted_rank,degree_rank,flight_rank,volume_boost
+DEL,New Delhi,Indira Gandhi International Airport,National Mega Hub,7,223,0.9565,0.4222,1.0,0.5333,0.7778,0.3194,0.8182,2,1,1,1,1
+BOM,Mumbai,Chhatrapati Shivaji Maharaj International Airport,National Mega Hub,7,211,1.0,0.4414,0.9639,0.514,0.7778,0.2176,0.8182,1,2,1,2,-1
+BLR,Bengaluru,Kempegowda International Airport,Primary Metro Hub,6,165,0.9336,0.4121,0.8216,0.4381,0.6667,0.1204,0.75,3,3,3,3,0
+HYD,Hyderabad,Rajiv Gandhi International Airport,Primary Metro Hub,5,114,0.8435,0.3723,0.6277,0.3347,0.5556,0.0694,0.6923,5,4,4,4,1
+MAA,Chennai,Chennai International Airport,Primary Metro Hub,5,94,0.8681,0.3831,0.5196,0.2771,0.5556,0.037,0.6923,4,5,4,5,-1
+AMD,Ahmedabad,Sardar Vallabhbhai Patel International Airport,Regional Hub (West),2,42,0.395,0.1744,0.284,0.1515,0.2222,0.0,0.5625,8,6,8,7,2
+GOI,Goa,Dabolim / Manohar International Airport,Tourist Gateway (West),2,38,0.3904,0.1723,0.2383,0.1271,0.2222,0.0,0.5,9,7,8,9,2
+CCU,Kolkata,Netaji Subhash Chandra Bose International Airport,Regional Hub (East),3,50,0.4195,0.1852,0.2375,0.1266,0.3333,0.0139,0.5294,7,8,6,6,-1
+COK,Kochi,Cochin International Airport,Regional Gateway (South),3,40,0.5657,0.2497,0.219,0.1168,0.3333,0.0,0.5294,6,9,6,8,-3
+GAU,Guwahati,Lokpriya Gopinath Bordoloi International Airport,Regional Gateway (North-East),2,21,0.2778,0.1226,0.0815,0.0435,0.2222,0.0,0.5,10,10,8,10,0
