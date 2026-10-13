@@ -1,21 +1,3 @@
-"""
-Airport Hub Detection using Eigenvalues & Eigenvectors
-======================================================
-Course: UE25MA242A - Mathematics for AI / Data Science (MFAD)
-Department of Computer Science & Engineering, PES University
-
-A minimal, self-contained Linear Algebra pipeline implementing the
-official MFAD Mini-Project Guidelines workflow:
-1. Real-World Data & Matrix Representation (A: Routes, W: Flight Volume)
-2. Structure of the Space: Rank, Nullity, Basis & Rank-Nullity Theorem
-3. Pattern Discovery: Eigenvalues, Eigenvectors & Perron-Frobenius Theorem
-4. Numerical Approximation: Power Iteration with Rayleigh Quotient
-5. Final Application Output: Strategic Airport Hub Centrality Rankings
-
-Usage:
-    python main.py
-"""
-
 import json
 from pathlib import Path
 import numpy as np
@@ -203,20 +185,6 @@ def main():
             f"{routes_count:<6} | {flight_count:<13} | {score:<10.4f} | {airport['category']}"
         )
     print("-" * len(header))
-
-    # Mathematical & Real-World Insights
-    print("\nKEY LINEAR ALGEBRA & TRANSPORTATION INSIGHTS:")
-    print("  1. Premier National Hubs:")
-    print("     New Delhi (DEL, 1.0000) and Mumbai (BOM, 0.9639) emerge as the undisputed structural")
-    print("     transit backbone of Indian aviation, handling over 200 daily flights each.")
-    print("  2. Connection Quality vs. Connection Quantity:")
-    print("     Ahmedabad (AMD) has only 2 direct routes, yet ranks #6 nationwide (score: 0.2840) —")
-    print("     surpassing 3-route gateways like Kolkata (CCU: 0.2375) and Kochi (COK: 0.2190).")
-    print("     Reason: AMD's 2 routes feed directly into the top two mega-hubs (DEL and BOM).")
-    print("  3. Leisure Corridor Multiplier:")
-    print("     Goa (GOI, 0.2383) achieves a higher operational prestige than Kolkata due to")
-    print("     high-frequency shuttles connecting Mumbai and Bengaluru.")
-    print("=" * 80)
 
 
 if __name__ == "__main__":
