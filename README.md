@@ -4,79 +4,77 @@
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Field](https://img.shields.io/badge/Field-Applied%20Linear%20Algebra%20%7C%20MFAD-orange.svg)](#)
 
-An applied linear algebra and spectral graph theory project that models aviation transit networks and applies **Spectral Decomposition**, the **Perron-Frobenius Theorem**, and **Flight Capacity Weighing** to identify strategic national airport hubs via **Eigenvector Centrality**.
+A minimal, self-contained Applied Linear Algebra mini-project implementing **Spectral Graph Theory**, the **Perron-Frobenius Theorem**, and **Flight Capacity Weighing** to identify strategic national airport hubs via **Eigenvector Centrality**.
 
-Developed for **UE25MA242A — Mathematics for Artificial Intelligence / Data Science (MFAD)**, PES University.
+Developed for **UE25MA242A — Mathematics for Artificial Intelligence / Data Science (MFAD)**, Department of CSE, PES University.
 
 ---
 
 ## ✈️ Overview
 
-When analyzing transportation networks, the most intuitive approach is to count direct connections—known as **Degree Centrality**. However, in real-world aviation corridors, **not all connections are created equal**:
+When analyzing flight networks, counting direct connections (**Degree Centrality**) is insufficient because **not all connections are created equal**:
+> *Connecting to a premier national transit hub (such as Delhi or Mumbai) confers far greater structural importance and transit flow than connecting to multiple isolated regional airstrips.*
 
-> *Connecting to a premier national transit hub (such as Mumbai or Delhi) confers far greater structural importance and transit flow than connecting to multiple isolated regional airstrips.*
+Furthermore, corridors themselves carry vastly different operational capacities:
+- **Delhi–Mumbai Trunk:** 65 daily flights
+- **Kolkata–Guwahati:** 12 daily flights
 
-Furthermore, routes vary drastically in operational capacity:
-- **Delhi–Mumbai Trunk:** Operates **65 daily flights**.
-- **Kolkata–Guwahati:** Operates **12 daily flights**.
-
-This project implements a complete linear algebraic pipeline to evaluate both **Topological Prestige** and **Operational Capacity Flow**.
-
----
-
-## 📐 Mathematical Formulation
-
-### 1. Dual Matrix Models
-- **Binary Adjacency Matrix $A \in \{0, 1\}^{10 \times 10}$:** Models topological route existence ($A_{ij} = 1$).
-- **Weighted Frequency Matrix $W \in \mathbb{R}^{10 \times 10}$:** Models total scheduled daily commercial flights ($W_{ij} = \text{daily\_flights}$).
-- Both matrices are **real symmetric** ($A = A^T, W = W^T$) and **hollow** ($A_{ii} = 0, \text{Tr}(A) = 0$).
-
-### 2. Structure of the Space & Rank-Nullity Theorem
-- **Vector Space:** $\mathbb{R}^{10}$ state space.
-- **Topological Matrix $A$:** $\text{Rank}(A) = 9, \text{Nullity}(A) = 1$.
-- **Rank-Nullity Theorem:**
-  $$\text{Rank}(A) + \text{Nullity}(A) = 9 + 1 = 10 \quad (\text{Verified})$$
-- **Capacity Matrix $W$:** Full Rank ($\text{Rank} = 10, \text{Nullity} = 0$).
-- **Orthonormal Eigenbasis:** $Q = [\mathbf{q}_1, \dots, \mathbf{q}_{10}]$ such that $Q^T Q = I_{10}$ and $M = Q \Lambda Q^T$.
-
-### 3. The Central Eigenvalue Equation
-The structural importance $v_i$ of airport $i$ is proportional to the sum of importance scores of its neighbors weighted by connection intensity:
-
-$$\lambda v_i = \sum_{j \in \mathcal{N}(i)} W_{ij} v_j \iff W\mathbf{v} = \lambda \mathbf{v}$$
-
-### 4. Perron-Frobenius Theorem
-Because the route network is connected (irreducible) and non-negative ($W_{ij} \ge 0$):
-1. The dominant eigenvalue $\lambda_{\max}$ is strictly positive and real.
-2. The associated principal eigenvector $\mathbf{v}$ has **strictly positive components** ($v_i > 0$ for all $i$).
-3. The normalized eigenvector $\mathbf{v} / \max(\mathbf{v})$ provides a canonical hub ranking.
-
-### 5. Numerical Power Iteration
-$$\mathbf{v}^{(k+1)} = \frac{W\mathbf{v}^{(k)}}{\|W\mathbf{v}^{(k)}\|_2}, \quad \lambda^{(k)} = \frac{(\mathbf{v}^{(k)})^T W \mathbf{v}^{(k)}}{(\mathbf{v}^{(k)})^T \mathbf{v}^{(k)}}$$
-
-- **Unweighted Model $A$:** Converged in **27 iterations** ($\lambda_1 = 4.9529, \Delta \lambda = 3.1171$).
-- **Weighted Model $W$:** Converged in **28 iterations** ($\lambda_1 = 145.3338, \Delta \lambda = 124.3905$).
+This project implements a complete linear algebraic pipeline to identify true transit hubs using both **Topological Routes** and **Daily Flight Capacity**.
 
 ---
 
-## 📊 Master Hub Rankings & Empirical Insights
+## 📐 Linear Algebra Workflow (MFAD Guidelines)
 
-| Rank | Airport Code | City / Region | Routes | Daily Flights | Topological Score ($A$) | Operational Score ($W$) | Topo Rank | Volume Shift |
-|:---:|:---:|:---|:---:|:---:|:---:|:---:|:---:|:---:|
-| **1** | **DEL** | New Delhi | 7 | 223 | 0.9565 | **1.0000** | #2 | **+1** (Capital Mega Hub) |
-| **2** | **BOM** | Mumbai | 7 | 211 | **1.0000** | **0.9639** | #1 | **-1** (Commercial Backbone) |
-| **3** | **BLR** | Bengaluru | 6 | 165 | 0.9336 | **0.8216** | #3 | 0 (Tech & Aviation Hub) |
-| **4** | **HYD** | Hyderabad | 5 | 114 | 0.8435 | **0.6277** | #5 | **+1** (Deccan Central Hub) |
-| **5** | **MAA** | Chennai | 5 | 94 | 0.8681 | **0.5196** | #4 | **-1** (Southern Coastal Hub) |
-| **6** | **AMD** | Ahmedabad | 2 | 42 | 0.3950 | **0.2840** | #8 | **+2** (Commercial Hub Surge) |
-| **7** | **GOI** | Goa | 2 | 38 | 0.3904 | **0.2383** | #9 | **+2** (Leisure Shuttle Surge) |
-| **8** | **CCU** | Kolkata | 3 | 50 | 0.4195 | **0.2375** | #7 | **-1** (Eastern Regional Hub) |
-| **9** | **COK** | Kochi | 3 | 40 | 0.5657 | **0.2190** | #6 | **-3** (South Gateway) |
-| **10** | **GAU** | Guwahati | 2 | 21 | 0.2778 | **0.0815** | #10 | 0 (North-East Gateway) |
+The project directly maps to the official PES University MFAD course workflow:
 
-### Key Mathematical & Real-World Insights:
-- **DEL Surges Over BOM:** While Mumbai holds slightly higher route centrality, Delhi dominates operational capacity with over 223 daily scheduled flight departures, capturing #1 nationwide.
-- **Ahmedabad (AMD) Volume Boost:** AMD connects to only 2 airports (DEL and BOM), but carries 42 heavy daily flights—pushing its capacity score past Kolkata and Kochi.
-- **Goa (GOI) High-Frequency Corridors:** Frequent coastal and IT shuttles from BOM and BLR boost Goa above larger regional cities.
+```
+[Stage 1] Real-World Data & Matrix Representation (A: Routes, W: Flight Volume)
+                           ↓
+[Stage 2] Structure of the Space: Subspaces, Bases & Rank-Nullity Theorem (Rank 9 + Nullity 1 = 10)
+                           ↓
+[Stage 3] Pattern Discovery: Eigendecomposition & Perron-Frobenius Dominant Eigenspace
+                           ↓
+[Stage 4] Numerical Approximation: Power Iteration Algorithm with Rayleigh Quotient
+                           ↓
+[Stage 5] Final Application Output: Normalized Strategic Airport Hub Rankings
+```
+
+1. **Dual Matrix Models:**
+   - Binary Adjacency Matrix $A \in \{0, 1\}^{10 \times 10}$ (topological flight connections).
+   - Weighted Frequency Matrix $W \in \mathbb{R}^{10 \times 10}$ (499 total daily flights).
+   - Real, symmetric ($A = A^T, W = W^T$), hollow ($\text{Tr}(A) = 0, \text{Tr}(W) = 0$).
+2. **Structure of the Space & Rank-Nullity Theorem:**
+   - Ambient Space: $\mathbb{R}^{10}$.
+   - Binary Matrix: $\text{Rank}(A) = 9, \text{Nullity}(A) = 1$.
+   - **Rank-Nullity Theorem Verified:** $\text{Rank}(A) + \text{Nullity}(A) = 9 + 1 = 10$.
+   - Weighted Matrix: Full rank ($\text{Rank} = 10, \text{Nullity} = 0$).
+3. **Perron-Frobenius Theorem Guarantee:**
+   - Because $W$ is non-negative and connected (irreducible), the dominant eigenvalue $\lambda_1 = 145.3338$ is strictly positive and real.
+   - Its principal eigenvector $\mathbf{v}_1$ has **all strictly positive components** ($v_i > 0$), providing a canonical ranking.
+4. **Power Iteration Algorithm:**
+   - Implemented from scratch using the Rayleigh quotient.
+   - Converges in **28 iterations** with residual $\|W\mathbf{v} - \lambda \mathbf{v}\|_2 = 1.38 \times 10^{-13}$.
+
+---
+
+## 📊 Master Hub Rankings & Key Results
+
+| Rank | Airport Code | City / Region | Routes | Daily Flights | Hub Centrality Score | Classification |
+|:---:|:---:|:---|:---:|:---:|:---:|:---|
+| **1** | **DEL** | New Delhi | 7 | 223 | **1.0000** | National Mega Hub |
+| **2** | **BOM** | Mumbai | 7 | 211 | **0.9639** | National Mega Hub |
+| **3** | **BLR** | Bengaluru | 6 | 165 | **0.8216** | Primary Metro Hub |
+| **4** | **HYD** | Hyderabad | 5 | 114 | **0.6277** | Primary Metro Hub |
+| **5** | **MAA** | Chennai | 5 | 94 | **0.5196** | Primary Metro Hub |
+| **6** | **AMD** | Ahmedabad | 2 | 42 | **0.2840** | Regional Hub (West) |
+| **7** | **GOI** | Goa | 2 | 38 | **0.2383** | Tourist Gateway (West) |
+| **8** | **CCU** | Kolkata | 3 | 50 | **0.2375** | Regional Hub (East) |
+| **9** | **COK** | Kochi | 3 | 40 | **0.2190** | Regional Gateway (South) |
+| **10** | **GAU** | Guwahati | 2 | 21 | **0.0815** | Regional Gateway (NE) |
+
+### Key Insights:
+- **Connection Quality vs. Quantity:** Ahmedabad (AMD) has only 2 routes, yet scores higher than Kolkata (CCU, 3 routes) and Kochi (COK, 3 routes) because AMD feeds directly into the nation's premier mega-hubs (DEL and BOM).
+- **Capital Hub Surge:** New Delhi (DEL, 1.0000) captures #1 over Mumbai (BOM, 0.9639) when high-frequency trunk passenger volumes are factored in.
 
 ---
 
@@ -84,56 +82,30 @@ $$\mathbf{v}^{(k+1)} = \frac{W\mathbf{v}^{(k)}}{\|W\mathbf{v}^{(k)}\|_2}, \quad 
 
 ```
 airport-hub-detection/
-├── main.py                              # Master 5-stage orchestrator pipeline
-├── run_project.bat                      # Windows one-click execution & dashboard launcher
-├── PROJECT_REPORT.md                    # Academic report formatted for viva defense
-├── README.md                            # Project documentation
-│
-├── src/                                 # Core mathematical packages
-│   ├── network_model.py                 # Adjacency & Weighted matrices, Rank-Nullity, Bases
-│   ├── spectral_analysis.py             # Eigendecomposition, Perron-Frobenius & Power Iteration
-│   ├── visualizer.py                    # High-res publication graphics & executive dashboard
-│   └── report_generator.py              # Terminal reports & Interactive HTML web dashboard
-│
-├── data/                                # Network datasets & exported matrices
-│   ├── airports.json                    # Airport metadata & coordinates
-│   ├── routes.json                      # Route definitions with daily flights & distances
-│   ├── adjacency_matrix.csv             # 10x10 binary adjacency matrix A
-│   ├── weighted_adjacency_matrix.csv    # 10x10 daily flight frequency matrix W
-│   ├── centrality_results.csv           # Full comparative metrics output table
-│   └── spectral_analysis_summary.json   # Exported eigenvalues and convergence metrics
-│
-└── figures/                             # High-resolution generated visual assets
-    ├── 01_network_graph.png             # Geographic network scaled by flight frequency & score
-    ├── 02_adjacency_heatmap.png         # Dual heatmaps: Topology A vs. Flight Frequency W
-    ├── 03_centrality_ranking.png        # Comparative bar chart: Topology vs. Capacity Flow
-    ├── 04_eigenvalue_spectrum.png       # Dual eigenvalue spectra & Power Iteration convergence
-    ├── airport_hub_executive_dashboard.png   # 4-panel presentation dashboard
-    └── airport_hub_interactive_dashboard.html # State-of-the-art interactive web dashboard
+├── main.py                  # Single self-contained linear algebra pipeline
+├── requirements.txt         # Minimal dependency: numpy
+├── README.md                # Project documentation
+├── PROJECT_REPORT.md        # Academic report for evaluation and viva
+└── data/                    # Clean dataset files
+    ├── airports.json        # 10 airports with coordinates & categories
+    └── routes.json          # 21 route definitions with flight counts
 ```
 
 ---
 
-## 🚀 Getting Started
+## 🚀 Execution
 
 ### Prerequisites
-Make sure Python 3.10+ is installed on your system.
-
-### Installation
-Install required dependencies:
+Only `numpy` is required:
 ```bash
-pip install numpy networkx matplotlib seaborn pandas scipy
+pip install numpy
 ```
-*(Or use virtualenv with `uv pip install -r requirements.txt`)*
 
-### Running the Pipeline
-Run the master script:
+### Running the Program
 ```bash
 python main.py
 ```
-
-### Viewing the Interactive Web Dashboard
-Open `figures/airport_hub_interactive_dashboard.html` in any browser, or on Windows double-click `run_project.bat`.
+*(Runs in under a second and prints all 5 stages of the linear algebra pipeline directly to the console).*
 
 ---
 
