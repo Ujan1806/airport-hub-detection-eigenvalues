@@ -279,7 +279,7 @@
 
     <!-- Course Linear Algebra Workflow Timeline -->
     <div class="pipeline-card">
-        <div class="pipeline-title">MFAD Course Linear Algebra Workflow Implementation</div>
+        <div class="pipeline-title">Direct Linear Algebra Workflow Implementation</div>
         <div class="steps-container">
             <div class="step-item">
                 <div class="step-num">Step 1</div>
@@ -293,18 +293,13 @@
             </div>
             <div class="step-item">
                 <div class="step-num">Step 3</div>
-                <div class="step-name">Space Structure</div>
-                <div class="step-desc">Rank-Nullity (9 + 1 = 10) & Orthonormal Basis Q</div>
+                <div class="step-name">Structure of Space</div>
+                <div class="step-desc">Rank-Nullity (9 + 1 = 10, Col(HYD) = Col(COK) + Col(GAU))</div>
             </div>
             <div class="step-item">
                 <div class="step-num">Step 4</div>
-                <div class="step-name">Pattern Discovery</div>
-                <div class="step-desc">Av = &lambda;v, Perron-Frobenius & Power Iteration</div>
-            </div>
-            <div class="step-item">
-                <div class="step-num">Step 5</div>
-                <div class="step-name">Application Output</div>
-                <div class="step-desc">Strategic Transit Hub Rankings & Dashboards</div>
+                <div class="step-name">Spectral Hub Detection</div>
+                <div class="step-desc">Wv = &lambda;v via np.linalg.eigh & Perron-Frobenius Dominant Vector</div>
             </div>
         </div>
     </div>
@@ -322,14 +317,14 @@
             <div class="kpi-sub">Weighted Spectral Radius (Unweighted: 4.95)</div>
         </div>
         <div class="kpi-card">
-            <div class="kpi-label">Spectral Gap (&lambda;₁ - &lambda;₂)</div>
-            <div class="kpi-val" style="color:#059669;">124.39</div>
-            <div class="kpi-sub">Massive gap &rarr; Converges in 28 iters</div>
+            <div class="kpi-label">Dominant Eigenvector</div>
+            <div class="kpi-val" style="color:#059669;">v₁ &gt; 0</div>
+            <div class="kpi-sub">Perron-Frobenius Positive Importance Vector</div>
         </div>
         <div class="kpi-card">
             <div class="kpi-label">Daily Commercial Traffic</div>
             <div class="kpi-val" style="color:#E11D48;">499 flt/d</div>
-            <div class="kpi-sub">Busiest: DEL <-> BOM (65 flights/day)</div>
+            <div class="kpi-sub">Busiest: DEL &lt;-&gt; BOM (65 flights/day)</div>
         </div>
     </div>
 

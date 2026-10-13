@@ -32,11 +32,9 @@ The project directly maps to the official PES University MFAD course workflow:
                            ↓
 [Stage 2] Structure of the Space: Subspaces, Bases & Rank-Nullity Theorem (Rank 9 + Nullity 1 = 10)
                            ↓
-[Stage 3] Pattern Discovery: Eigendecomposition & Perron-Frobenius Dominant Eigenspace
+[Stage 3] Spectral Decomposition: Exact Eigendecomposition (np.linalg.eigh) & Perron-Frobenius
                            ↓
-[Stage 4] Numerical Approximation: Power Iteration Algorithm with Rayleigh Quotient
-                           ↓
-[Stage 5] Final Application Output: Normalized Strategic Airport Hub Rankings
+[Stage 4] Final Application Output: Normalized Strategic Airport Hub Rankings
 ```
 
 1. **Dual Matrix Models:**
@@ -45,15 +43,16 @@ The project directly maps to the official PES University MFAD course workflow:
    - Real, symmetric ($A = A^T, W = W^T$), hollow ($\text{Tr}(A) = 0, \text{Tr}(W) = 0$).
 2. **Structure of the Space & Rank-Nullity Theorem:**
    - Ambient Space: $\mathbb{R}^{10}$.
-   - Binary Matrix: $\text{Rank}(A) = 9, \text{Nullity}(A) = 1$.
+   - Binary Matrix: $\text{Rank}(A) = 9, \text{Nullity}(A) = 1$ ($\text{Col}(\text{HYD}) = \text{Col}(\text{COK}) + \text{Col}(\text{GAU})$).
    - **Rank-Nullity Theorem Verified:** $\text{Rank}(A) + \text{Nullity}(A) = 9 + 1 = 10$.
    - Weighted Matrix: Full rank ($\text{Rank} = 10, \text{Nullity} = 0$).
-3. **Perron-Frobenius Theorem Guarantee:**
+3. **Exact Spectral Decomposition (`np.linalg.eigh`):**
+   - Diagonalizes the real symmetric matrix $W = Q \Lambda Q^T$ with orthonormal basis $Q^T Q = I_{10}$.
+   - Extracts all strictly real eigenvalues directly without requiring iterative approximation.
+4. **Perron-Frobenius Theorem & Score Normalization:**
    - Because $W$ is non-negative and connected (irreducible), the dominant eigenvalue $\lambda_1 = 145.3338$ is strictly positive and real.
-   - Its principal eigenvector $\mathbf{v}_1$ has **all strictly positive components** ($v_i > 0$), providing a canonical ranking.
-4. **Power Iteration Algorithm:**
-   - Implemented from scratch using the Rayleigh quotient.
-   - Converges in **28 iterations** with residual $\|W\mathbf{v} - \lambda \mathbf{v}\|_2 = 1.38 \times 10^{-13}$.
+   - Its principal eigenvector $\mathbf{v}_1$ has all strictly positive components ($v_i > 0$).
+   - Hub scores are normalized by dividing by $\max(\mathbf{v}_1)$, giving the top airport a canonical score of 1.0000.
 
 ---
 
@@ -105,7 +104,7 @@ pip install numpy
 ```bash
 python main.py
 ```
-*(Runs in under a second and prints all 5 stages of the linear algebra pipeline directly to the console).*
+*(Runs in under a second and prints all 4 stages of the linear algebra pipeline directly to the console).*
 
 ---
 

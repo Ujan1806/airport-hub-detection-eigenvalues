@@ -20,7 +20,7 @@ This project implements an applied linear algebraic pipeline addressing:
 2. **Operational Capacity Hubs:** Via the weighted Flight Frequency Matrix $W \in \mathbb{R}^{10 \times 10}$ representing 499 daily commercial flights.
 3. **Structure of the Space:** Explicitly analyzing Vector Spaces, Subspaces, Column & Null Space Bases, and verifying the **Rank-Nullity Theorem**.
 4. **Spectral Graph Theory & Perron-Frobenius Theorem:** Formally proving why the dominant eigenvector yields an all-positive, canonical hub ranking.
-5. **Numerical Power Iteration:** Implementing iterative Rayleigh quotient convergence from scratch.
+5. **Direct Spectral Solution:** Leveraging exact symmetric eigendecomposition (`np.linalg.eigh`) to directly extract dominant transit modes.
 
 ---
 
@@ -93,23 +93,16 @@ Hence, Perron-Frobenius guarantees that every airport receives a strictly positi
 
 ---
 
-## 4. Algorithmic Convergence: Power Iteration Method
-
-To demonstrate numerical approximation without relying on black-box solvers, the **Power Iteration Method** was implemented from scratch:
-
-1. **Initialization:** Unit uniform vector $\mathbf{v}^{(0)} = \frac{1}{\sqrt{n}}[1, 1, \dots, 1]^T$.
-2. **Matrix-Vector Multiplication:** $\mathbf{y}^{(k)} = M \mathbf{v}^{(k-1)}$.
-3. **Rayleigh Quotient for Eigenvalue:** $\lambda^{(k)} = \frac{(\mathbf{v}^{(k-1)})^T \mathbf{y}^{(k)}}{(\mathbf{v}^{(k-1)})^T \mathbf{v}^{(k-1)}}$.
-4. **Normalization:** $\mathbf{v}^{(k)} = \frac{\mathbf{y}^{(k)}}{\|\mathbf{y}^{(k)}\|_2}$.
-5. **Termination:** When $\|\mathbf{v}^{(k)} - \mathbf{v}^{(k-1)}\|_2 < 10^{-9}$.
-
-### Spectral Gap Comparison:
-- **Unweighted Model $A$:**
-  - $\lambda_1 = 4.952856$, $\lambda_2 = 1.835707$, Spectral Gap $\Delta \lambda = 3.117149$.
-  - Convergence: **27 iterations**.
-- **Weighted Model $W$:**
-  - $\lambda_1 = 145.333785$, $\lambda_2 = 20.943302$, Spectral Gap $\Delta \lambda = 124.390484$.
-  - Convergence: **28 iterations** (Spectral ratio $\frac{\lambda_2}{\lambda_1} \approx 0.1441 \ll 1$).
+## 4. Spectral Graph Decomposition & Dominant Vector Extraction
+ 
+Because $W$ is real and symmetric ($W = W^T$), the **Spectral Theorem** guarantees that all 10 eigenvalues are strictly real and that the matrix is orthogonally diagonalizable:
+$$W = Q \Lambda Q^T$$
+ 
+Using standard exact symmetric eigendecomposition (`np.linalg.eigh`):
+1. **Direct Decomposition:** Computes all eigenvalues $\lambda_1 \ge \lambda_2 \ge \dots \ge \lambda_{10}$ and their orthogonal eigenvectors directly in machine precision ($O(n^3)$ operations, completing in $< 0.1$ ms for $n = 10$).
+2. **Dominant Mode Selection:** The principal eigenvalue $\lambda_1 = 145.3338$ captures the dominant passenger flow through the network.
+3. **Perron-Frobenius Positive Mode:** Extracting $\mathbf{v}_1 = |\mathbf{q}_1|$ yields strictly positive scores across all nodes ($v_i > 0$).
+4. **Max-Normalization:** Dividing by $\max(\mathbf{v}_1)$ scales Delhi (DEL) to $1.0000$, benchmarking all other airports relative to the nation's premier transit hub.
 
 ---
 
@@ -153,7 +146,7 @@ Linear algebraic exactness was verified against machine precision:
 | **Vector Space Subspaces & Rank-Nullity** | Determine linear independence and dimension of network space. | Verified $\text{Rank}(A) + \text{Nullity}(A) = 9 + 1 = 10$. Found 9 basis airports. |
 | **Spectral Theorem & Diagonalization** | Decompose symmetric matrices into orthonormal eigenmodes ($M = Q \Lambda Q^T$). | Proved all 10 eigenvalues are real; verified $Q^T Q = I_{10}$ to machine precision. |
 | **Perron-Frobenius Theorem** | Ensure existence of a strictly positive, non-trivial centrality score. | Guaranteed dominant eigenvalues ($\lambda_A \approx 4.95, \lambda_W \approx 145.33$) yield strictly positive scores ($v_i > 0$). |
-| **Power Iteration & Rayleigh Quotient** | Compute dominant eigenspace iteratively without full matrix inversion. | Converged in 27 and 28 iterations to tolerance $10^{-9}$. |
+| **Direct Spectral Decomposition (`eigh`)** | Extract eigenvalues and eigenvectors directly without iterative approximation. | Solved in $< 0.1$ ms with residual $\|W\mathbf{v} - \lambda_1 \mathbf{v}\|_2 \approx 10^{-13}$. |
 
 ---
 

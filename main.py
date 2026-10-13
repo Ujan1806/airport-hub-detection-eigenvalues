@@ -2,9 +2,7 @@ import json
 from pathlib import Path
 import numpy as np
 
-# -----------------------------------------------------------------------------
-# 1. DATASET: 10 Indian Airports & 21 Flight Routes
-# -----------------------------------------------------------------------------
+
 AIRPORTS = [
     {"code": "DEL", "city": "New Delhi", "name": "Indira Gandhi Int'l Airport", "category": "National Mega Hub"},
     {"code": "BOM", "city": "Mumbai", "name": "Chhatrapati Shivaji Maharaj Int'l", "category": "National Mega Hub"},
@@ -59,28 +57,6 @@ def build_matrices():
 
     return A, W, code_to_idx
 
-
-def power_iteration(M, max_iter=100, tol=1e-9):
-    """
-    Implements Power Iteration from scratch:
-        v^(k+1) = M v^(k) / ||M v^(k)||
-        lambda^(k) = Rayleigh Quotient
-    """
-    n = M.shape[0]
-    v = np.ones(n, dtype=float) / np.sqrt(n)
-    final_lambda = 0.0
-
-    for k in range(1, max_iter + 1):
-        Mv = M @ v
-        lam = float(v.T @ Mv / (v.T @ v))
-        v_next = Mv / np.linalg.norm(Mv)
-        step_error = float(np.linalg.norm(v_next - v))
-        v = v_next
-        final_lambda = lam
-        if step_error < tol:
-            return final_lambda, v, k
-
-    return final_lambda, v, max_iter
 
 
 def main():
@@ -144,28 +120,14 @@ def main():
     orthonormal_check = np.allclose(evecs.T @ evecs, np.eye(n))
 
     print(f"Dominant Eigenvalue (lambda_1)  : {lambda_1:.4f}")
-    print(f"Second Eigenvalue   (lambda_2)  : {lambda_2:.4f}")
-    print(f"Spectral Gap (lambda_1 - lambda_2): {spectral_gap:.4f}")
     print(f"Residual Norm ||Wv - lambda*v|| : {residual:.2e} (Exact to machine precision)")
-    print(f"Orthonormal Eigenbasis (Q^T*Q=I): {orthonormal_check}")
     print(f"Perron-Frobenius Guarantee      : All coordinates v_i > 0 for dominant eigenvector")
 
     # -------------------------------------------------------------------------
-    # STAGE 4: NUMERICAL APPROXIMATION (POWER ITERATION)
+    # STAGE 4: FINAL APPLICATION OUTPUT (HUB CENTRALITY RANKINGS)
     # -------------------------------------------------------------------------
     print("\n" + "-" * 80)
-    print("STAGE 4: NUMERICAL APPROXIMATION (POWER ITERATION FROM SCRATCH)")
-    print("-" * 80)
-    pi_lam, pi_vec, iters = power_iteration(W)
-    print(f"Power Iteration Converged in    : {iters} iterations")
-    print(f"Estimated Dominant Eigenvalue   : {pi_lam:.4f}")
-    print(f"Difference from Exact Solver    : {abs(pi_lam - lambda_1):.2e}")
-
-    # -------------------------------------------------------------------------
-    # STAGE 5: FINAL APPLICATION OUTPUT (HUB CENTRALITY RANKINGS)
-    # -------------------------------------------------------------------------
-    print("\n" + "-" * 80)
-    print("STAGE 5: FINAL APPLICATION OUTPUT (STRATEGIC AIRPORT HUB RANKINGS)")
+    print("STAGE 4: FINAL APPLICATION OUTPUT (STRATEGIC AIRPORT HUB RANKINGS)")
     print("-" * 80)
     # Max-normalization: Premier hub = 1.0000
     hub_scores = dom_vec / np.max(dom_vec)
